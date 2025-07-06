@@ -1,0 +1,28 @@
+<?php
+session_start();
+include('db/connection.php');
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $username = $_POST['username']; 
+    $password = $_POST['password'];
+
+    $query = "SELECT * FROM users WHERE username=? AND password=?";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("ss", $username, $password);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($user = $result->fetch_assoc()) {
+        // ✅ Set session variables
+        $_SESSION['user_id'] = $user['user_id'];
+        $_SESSION['username'] = $user['username'];
+        $_SESSION['email'] = $user['email'];
+
+        // 🔁 Redirect to dashboard or profile
+        header("Location: dashboard.php"); // or profile.php if you want
+        exit();
+    } else {
+        echo "Invalid username or password";
+    }
+}
+?>
